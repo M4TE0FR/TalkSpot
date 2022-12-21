@@ -1,0 +1,220 @@
+<html>
+  <head>
+    <title>TalkSpot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .container {
+        display: flex;
+        height: 100%;
+      }
+      .people {
+        width: 20%;
+        background-color: #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .person {
+    width: 90%;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid rgb(129, 127, 127);
+  }
+  .person img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+      .person:hover {
+        background-color: #ddd;
+      }
+      .chat {
+        width: 80%;
+        display: flex;
+        flex-direction: column;
+      }
+      .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  background-color: #575757;
+  color: white;
+  padding: 0 20px;
+}
+      .header img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+      }
+      .messages {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        height: calc(100% - 60px);
+        overflow-y: scroll;
+      }
+      .message {
+        width: 60%;
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .sent {
+        background-color: #0077ff;
+        align-self: flex-end;
+        color: white;
+      }
+      .received {
+        background-color: #ddd;
+        align-self: flex-start;
+      }
+      
+      form {
+        display: flex;
+        align-items: center;
+        width: 100%;
+        height: 60px;
+      }
+      input {
+        flex-grow: 1;
+        margin: 0 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+      }
+      button {
+        width: 80px;
+        margin: 0 10px;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #5a5a5a;
+        color: white;
+      }
+      button:hover {
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="people" id="people">
+      </div>
+      <div class="chat">
+        <div class="header">
+          <h1>TalkSpot</h1>
+          <img src="https://via.placeholder.com/40x40" alt="User Image">
+        </div>
+        <div class="messages" id="messages">
+        </div>
+        <form id="messageForm">
+          <input type="text" id="message" placeholder="Enter message">
+          <button type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-firestore.js"></script>
+    <script>
+      const firebaseConfig = {
+//once again instert your firebase configuration. - mateo
+        };
+      firebase.initializeApp(firebaseConfig);
+      var people = document.getElementById("people");
+      var messages = document.getElementById("messages");
+      var messageForm = document.getElementById("messageForm");
+      messageForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        var message = document.getElementById("message").value;
+        document.getElementById("message").value = "";
+        firebase.firestore().collection("messages").add({
+          message: message,
+          sender: firebase.auth().currentUser.email
+        });
+      });
+      firebase.firestore().collection("messages").onSnapshot(function(snapshot) {
+        messages.innerHTML = "";
+        snapshot.forEach(function(doc) {
+          var message = doc.data();
+          var el = document.createElement("div");
+          el.classList.add("message");
+          el.textContent = message.message;
+          if (message.sender === firebase.auth().currentUser.email) {
+            el.classList.add("sent");
+          } else {
+            el.classList.add("received");
+          }
+          messages.appendChild
+          (el);
+          messages.scrollTop = messages.scrollHeight;
+        });
+      });
+      firebase.firestore().collection("people").onSnapshot(function(snapshot) {
+        people.innerHTML = "";
+        snapshot.forEach(function(doc) {
+          var person = doc.data();
+          var el = document.createElement("div");
+          el.classList.add("person");
+          el.textContent = person.name;
+          people.appendChild(el);
+          el.addEventListener("click", function() {
+            document.querySelector(".header h1").textContent = person.name;
+            document.querySelector(".header img").src = person.image;
+            messages.innerHTML = "";
+            firebase.firestore().collection("messages").where("sender", "==", person.email).get().then(function(snapshot) {
+              snapshot.forEach(function(doc) {
+                var message = doc.data();
+                var el = document.createElement("div");
+                el.classList.add("message");
+                el.textContent = message.message;
+                if (message.sender === firebase.auth().currentUser.email) {
+                  el.classList.add("sent");
+                } else {
+                  el.classList.add("received");
+                }
+                messages.appendChild(el);
+                messages.scrollTop = messages.scrollHeight;
+              });
+            });
+          });
+        });
+      });
+    </script>
+    <script>
+        var people = document.getElementById("people");
+    
+        var data = [
+          { name: "Alice", image: "https://via.placeholder.com/40x40" },
+          { name: "Bob", image: "https://via.placeholder.com/40x40" },
+          { name: "Charlie", image: "https://via.placeholder.com/40x40" },
+          { name: "Dave", image: "https://via.placeholder.com/40x40" }
+        ];
+        console.log("Adding placeholder people");
+
+data.forEach(function(person) {
+  var el = document.createElement("div");
+  el.classList.add("person");
+  el.textContent = person.name;
+  var img = document.createElement("img");
+  img.src = person.image;
+  el.appendChild(img);
+  people.appendChild(el);
+});
+
+console.log("Placeholder people added");
+</script>
+      </script>
+  </body>
+</html>
+

@@ -1,0 +1,89 @@
+<html>
+  <head>
+    <title>TalkSpot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+      }
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      h1 {
+        margin-bottom: 30px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      input {
+        width: 60%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+      }
+      button {
+        width: 20%;
+        margin: 10px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #0077ff;
+        color: white;
+      }
+      button:hover {
+        cursor: pointer;
+        background-color: #0055cc;
+      }
+      .error {
+        color: red;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>TalkSpot</h1>
+      <form id="loginForm">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button type="submit">Log In</button>
+      </form>
+      <div class="error" id="error"></div>
+      <p>Don't have an account? <button id="registerButton">Sign Up</button></p>
+    </div>
+    <!-- Add Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.19.1/firebase-auth.js"></script>
+    <script>
+      const firebaseConfig = {
+        //removed my personal config, add your own - mateo
+        };
+      firebase.initializeApp(firebaseConfig);
+      var loginForm = document.getElementById("loginForm");
+      var errorMessage = document.getElementById("error");
+      loginForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        var email = document.getElementById("email").value;
+        var password = document.getElementById("password").value;
+      firebase.auth().signInWithEmailAndPassword(email, password).then(function() {
+        window.location = "put your home.html file directory in here";
+      }).catch(function(error) {
+        errorMessage.textContent = error.message;
+      });
+    });
+    var registerButton = document.getElementById("registerButton");
+    registerButton.addEventListener("click", function() {
+      var email = document.getElementById("email").value;
+      var password = document.getElementById("password").value;
+      firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        errorMessage.textContent = error.message;
+      });
+    });
+  </script>
+</body>
+</html>
